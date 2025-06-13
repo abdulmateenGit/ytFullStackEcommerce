@@ -1,23 +1,87 @@
-import { Request, Response } from "express";
+import e, { Request, Response } from "express";
+import { db } from "../../db/index";
+import { productsTable } from "../../db/productsSchema";
+import { eq } from "drizzle-orm";
 
-export function createProduct(req: Request, res: Response) {
-    console.log(req.body);
-    res.send("createProduct");
+export async function createProduct(req: Request, res: Response) {
+    try {
+        const [product] = await db
+            .insert(productsTable)
+            .values(req.body)
+            .returning();
+        res.status(201).json(product);
+    }
+    catch (error) {
+        res.status(500).json({ error: "Failed to create product" });
+    }
 }
 
-export function listProducts(req: Request, res: Response) {
-    res.send("List of Products");
+export async function listProducts(req: Request, res: Response) {
+    try {
+        const products = await db
+            .select()
+            .from(productsTable);
+        res.status(200).json(products);
+    }
+    catch (error) {
+        res.status(500).json({ error: "Failed to fetch list of products" });
+    }
 }
 
-export function getProductById(req: Request, res: Response) {
-    res.send("getProductById");
+export async function getProductById(req: Request, res: Response) {
+    try {
+        const id = Number(req.params.id);
+        const [product] = await db
+            .select()
+            .from(productsTable)
+            .where(eq(productsTable.id, id));
+        if (!product) {
+            return res.status(404).json({ error: "Product not found" });
+        } else {
+            res.status(200).json(product);
+        }
+    }
+    catch (error) {
+        res.status(500).json({ error: "Failed to fetch product by ID" });
+    }
 }
 
 
-export function updateProduct(req: Request, res: Response) {
-    res.send("updateProduct");
+export async function updateProduct(req: Request, res: Response) {
+    try {
+        const id = Number(req.params.id);
+        const updatedProduct = req.body;
+        const [product] = await db
+            .update(productsTable)
+            .set(updatedProduct)
+            .where(eq(productsTable.id, id))
+            .returning();
+        if (product) {
+            res.status(200).json(product);
+        } else {
+            res.status(404).json({ error: "Product not found" });
+        }
+
+    }
+    catch (error) {
+        res.status(500).json({ error: "Failed to update product" });
+    }
 }
 
-export function deleteProduct(req: Request, res: Response) {
-    res.send("List of Products");
+export async function deleteProduct(req: Request, res: Response) {
+    try {
+        const id = Number(req.params.id);
+        const [deleteProduct] = await db
+            .delete(productsTable)
+            .where(eq(productsTable.id, id))
+            .returning();
+        if (deleteProduct) {
+            res.status(204).json({ message: "Product deleted successfully" });
+        } else {
+            res.status(404).json({ error: "Product not found" });
+        }
+    }
+    catch (error) {
+        res.status(500).json({ error: "Failed to delete product" });
+    }
 }
