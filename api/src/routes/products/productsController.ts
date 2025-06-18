@@ -1,13 +1,14 @@
-import e, { Request, Response } from "express";
+import { Request, Response } from "express";
 import { db } from "../../db/index";
-import { productsTable } from "../../db/productsSchema";
+import { productsTable, createProductSchema } from "../../db/productsSchema";
 import { eq } from "drizzle-orm";
+import _ from "lodash";
 
 export async function createProduct(req: Request, res: Response) {
     try {
         const [product] = await db
             .insert(productsTable)
-            .values(req.body)
+            .values(req.cleanBody)
             .returning();
         res.status(201).json(product);
     }
@@ -35,8 +36,9 @@ export async function getProductById(req: Request, res: Response) {
             .select()
             .from(productsTable)
             .where(eq(productsTable.id, id));
+
         if (!product) {
-            return res.status(404).json({ error: "Product not found" });
+            res.status(404).json({ error: "Product not found" });
         } else {
             res.status(200).json(product);
         }
@@ -50,7 +52,7 @@ export async function getProductById(req: Request, res: Response) {
 export async function updateProduct(req: Request, res: Response) {
     try {
         const id = Number(req.params.id);
-        const updatedProduct = req.body;
+        const updatedProduct = req.cleanBody;
         const [product] = await db
             .update(productsTable)
             .set(updatedProduct)
