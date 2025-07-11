@@ -1,6 +1,6 @@
 {
-  "id": "fc7b72b1-334a-4227-9a39-8fbf389179a8",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "3542d986-d81e-486f-af88-5ab9ae429a54",
+  "prevId": "fc7b72b1-334a-4227-9a39-8fbf389179a8",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -99,13 +99,13 @@
           "name": "name",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "address": {
           "name": "address",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         }
       },
       "indexes": {},
